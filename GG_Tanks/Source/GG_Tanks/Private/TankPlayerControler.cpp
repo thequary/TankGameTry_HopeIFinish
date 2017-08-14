@@ -34,7 +34,7 @@ void ATankPlayerControler::AimTowardsCrosshair()
 	FVector HitLocation; // OutParameter
 	if (GetSightRayHitLocation(HitLocation))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("hit - %s"), *HitLocation.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("hit - %s"), *HitLocation.ToString());
 
 		//TODO Vom spune tank sa tinteasca locul "spuna locul"
 	}
@@ -43,6 +43,12 @@ void ATankPlayerControler::AimTowardsCrosshair()
 // Vom locatia liniei din ecran de pe teren VECTOR! Daca e adevarat returnam true
 bool ATankPlayerControler::GetSightRayHitLocation(FVector& HitLocation) const
 {
-	HitLocation = FVector(1, 0,0);
+	// Gasim pozitia Tintei
+	int32 ViewportSizeX, ViewportSizeY;
+	GetViewportSize(ViewportSizeX, ViewportSizeY);
+	auto ScreenLoaction = FVector2D(ViewportSizeX *CrossHairXLocation, ViewportSizeY*CrossHairYLocation);
+	UE_LOG(LogTemp, Warning, TEXT("hit - %s"), *ScreenLoaction.ToString());
+	// De-Project pozitia tintei din ecran in 3dspace Vector
+	// LineTrace pe vectorul respectiv -- HIT!
 	return true;
 }
