@@ -7,13 +7,15 @@ void ATankPlayerControler::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto ControledTank = GetControlledTank();
-
-	if (ControledTank)
+	auto ControlledTank = GetControlledTank();
+	if (!ControlledTank)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Posses!! %s"), *(ControledTank->GetName()));
+		UE_LOG(LogTemp, Warning, TEXT("PlayController not possesing a tank"));
 	}
-	else { UE_LOG(LogTemp, Warning, TEXT("Not Poses!!")); }
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerController possessing: %s"), *(ControlledTank->GetName()));
+	}
 }
 
 void ATankPlayerControler::Tick(float DeltaTime)
@@ -22,7 +24,6 @@ void ATankPlayerControler::Tick(float DeltaTime)
 	AimTowardsCrosshair();
 }
 
-
 ATank* ATankPlayerControler::GetControlledTank() const
 {
 	return Cast<ATank>(GetPawn());
@@ -30,51 +31,60 @@ ATank* ATankPlayerControler::GetControlledTank() const
 
 void ATankPlayerControler::AimTowardsCrosshair()
 {
-	if (!GetControlledTank()) { return; } // Verificam daca avem ControlerulTankului : nu avem nu procedam mai departe
-	FVector HitLocation; // OutParameter
-	if (GetSightRayHitLocation(HitLocation))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("hit - %s"), *HitLocation.ToString());
+	if (!GetControlledTank()) { return; }
 
-		//TODO Vom spune tank sa tinteasca locul "spuna locul"
+	FVector HitLocation; // Out parameter
+	if (GetSightRayHitLocation(HitLocation)) // Has "side-effect", is going to line trace
+	{
+		GetControlledTank()->AimAt(HitLocation);
 	}
 }
 
-// Vom locatia liniei din ecran de pe teren VECTOR! Daca e adevarat returnam true
+// Get world location of linetrace through crosshair, true if hits landscape
 bool ATankPlayerControler::GetSightRayHitLocation(FVector& HitLocation) const
 {
-	// Gasim pozitia Tintei
+	// Find the crosshair position in pixel coordinates
 	int32 ViewportSizeX, ViewportSizeY;
 	GetViewportSize(ViewportSizeX, ViewportSizeY);
+	auto ScreenLocation = FVector2D(ViewportSizeX * CrosshairXLocation, ViewportSizeY * CrosshairYLocation);
 
-	auto ScreenLoaction = FVector2D(ViewportSizeX *CrossHairXLocation, ViewportSizeY*CrossHairYLocation);
-	
-	FVector LockDirecrion;
-	if (GetLockDirecrion(ScreenLoaction, LockDirecrion))
+	// "De-project" the screen position of the crosshair to a world direction
+	FVector LookDirection;
+	if (GetLookDirection(ScreenLocation, LookDirection))
 	{
-		GetLookVectorHitLocation(HitLocation, LockDirecrion);
-		// De-Project pozitia tintei din ecran in 3dspace Vector
-		// LineTrace pe vectorul respectiv -- HIT!
-		//UE_LOG(LogTemp, Warning, TEXT("WorldDirection is : %s"), *WorldDirection.ToString());
+		// Line-trace along that LookDirection, and see what we hit (up to max range)
+		GetLookVectorHitLocation(LookDirection, HitLocation);
 	}
+
 	return true;
 }
 
-bool ATankPlayerControler::GetLockDirecrion(FVector2D ScreenLoaction, FVector& LockDirecrion)const
-{
-	FVector CameraWorldLocation;
-	return DeprojectScreenPositionToWorld(ScreenLoaction.X, ScreenLoaction.Y, CameraWorldLocation, LockDirecrion);
-}
-
-bool ATankPlayerControler::GetLookVectorHitLocation(FVector& HitLocation, FVector LockDirecrion)const
+bool ATankPlayerControler::GetLookVectorHitLocation(FVector LookDirection, FVector& HitLocation) const
 {
 	FHitResult HitResult;
 	auto StartLocation = PlayerCameraManager->GetCameraLocation();
-	auto EndLocation = StartLocation + (LockDirecrion*LineTraceRange);
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility)) 
+	auto EndLocation = StartLocation + (LookDirection * LineTraceRange);
+	if (GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		StartLocation,
+		EndLocation,
+		ECollisionChannel::ECC_Visibility)
+		)
 	{
 		HitLocation = HitResult.Location;
 		return true;
 	}
-	return false;
+	HitLocation = FVector(0);
+	return false; // Line trace didn't succeed
+}
+
+bool ATankPlayerControler::GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const
+{
+	FVector CameraWorldLocation; // To be discarded
+	return  DeprojectScreenPositionToWorld(
+		ScreenLocation.X,
+		ScreenLocation.Y,
+		CameraWorldLocation,
+		LookDirection
+	);
 }
