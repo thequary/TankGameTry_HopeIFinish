@@ -2,9 +2,12 @@
 
 #pragma once
 
-#include "Tank.h"
 #include "AIController.h"
 #include "TankAiControler.generated.h"
+
+//Foward declaration
+class ATank;
+
 
 /**
  * 
