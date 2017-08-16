@@ -14,16 +14,16 @@ class GG_TANKS_API UTankBarrel : public UStaticMeshComponent
 	GENERATED_BODY()
 	
 public:
-	void Elevate(float DegreesPerSecond);
+	void Elevate(float RelativeSpeed);
 	
 private:
 	UPROPERTY(EditAnywhere)
-		float MaxDegreesPerSecond = 20; 
+		float MaxDegreesPerSecond = 8; 
 
 	UPROPERTY(EditAnywhere)
-		float MaxElevationDegrees = 15;
+		float MaxElevationDegrees = 25;
 
 	UPROPERTY(EditAnywhere)
-		float MinElevationDegrees = -15;
+		float MinElevationDegrees = -10;
 
 };

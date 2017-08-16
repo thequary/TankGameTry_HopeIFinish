@@ -2,6 +2,7 @@
 
 #include "GG_Tanks.h"
 #include "TankBarrel.h"
+#include "TankTurret.h"
 #include "TankAimingComponent.h"
 
 
@@ -18,7 +19,13 @@ UTankAimingComponent::UTankAimingComponent()
 
 void UTankAimingComponent::SetBarrelReference(UTankBarrel* BarrelToSet)
 {
+	if (!BarrelToSet) { return; }
 	Barrel = BarrelToSet;
+}
+void UTankAimingComponent::SetTurretReference(UTankTurret* TurretToSet)
+{
+	if (!TurretToSet) { return; }
+	Turret = TurretToSet;
 }
 
 // Called when the game starts
@@ -29,7 +36,6 @@ void UTankAimingComponent::BeginPlay()
 	// ...
 
 }
-
 
 // Called every frame
 void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -51,22 +57,17 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 		StartLocation,
 		HitLocation,
 		LaunchSpeed,
-		0,
+		false,
+		0.f,
 		0,
 		ESuggestProjVelocityTraceOption::DoNotTrace
 	);
-	auto Name = GetOwner()->GetName();
-	if (bHaveAimSolution)
-	{
+	if (bHaveAimSolution) {
 		auto AimDirection = OutLaunchVelocity.GetSafeNormal();
-		auto Time = GetWorld()->GetTimeSeconds();
-		UE_LOG(LogTemp, Warning, TEXT("%f fownd on %s"), Time, *Name);
 		MoveBarrelTowards(AimDirection);
-		}
-		else {
-			auto Time = GetWorld()->GetTimeSeconds();
-			UE_LOG(LogTemp, Warning, TEXT("%f No sol fownd on %s"), Time,*Name);
-		}
+		MoveTurretTowards(AimDirection);
+	}
+	// UE_LOG(LogTemp, Warning, TEXT("%f fownd on %s"), Time, *Name); ///////////// UELOG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// If no solution found do nothing
 }
 
@@ -76,6 +77,14 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection) // Get in the
 	auto AimAsRotator = AimDirection.Rotation();
 	auto DeltaRotator = AimAsRotator - BarrelRotator;
 	
+	Barrel->Elevate(DeltaRotator.Pitch);
+}
 
-	Barrel->Elevate(5); // TODO remove magic number
+void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
+{
+	auto TurretRotator = Turret->GetForwardVector().Rotation();
+	auto AimAsRotator = AimDirection.Rotation();
+	auto DeltaRotator = AimAsRotator - TurretRotator;
+
+	Turret->Rotate(DeltaRotator.Yaw);
 }
