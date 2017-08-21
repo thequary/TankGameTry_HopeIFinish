@@ -8,7 +8,8 @@
 //Foward declaration
 class UTankBarrel;
 class UTankTurret;
-class UTankAimingComponent; 
+class UTankAimingComponent;
+class AProjectile;
 
 UCLASS()
 class GG_TANKS_API ATank : public APawn
@@ -23,6 +24,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
 	void SetTurretReference(UTankTurret* TurretToSet);
+
+	UFUNCTION(BlueprintCallable, Category = Fiering)
+		void Fire();
 
 protected:
 	UTankAimingComponent* TankAimingComponent = nullptr;
@@ -39,5 +43,10 @@ private:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
 	UPROPERTY(EditAnywhere, Category = Firing)
-		float LaunchSpeed = 100000; // TODO find sensible default
+		float LaunchSpeed = 50000; // TODO find sensible default
+
+	UPROPERTY(EditAnywhere, Category = Setup)
+		TSubclassOf<AProjectile> ProjectileBlueprints;
+
+	UTankBarrel* Barrel = nullptr;
 };
