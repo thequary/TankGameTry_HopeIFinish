@@ -6,7 +6,7 @@
 #include "TankTurret.generated.h"
 
 /**
- * 
+ * TankTrack este utilizat ca sa facem ceva cu trank'ul sau.
  */
 UCLASS(meta = (BlueprintSpawnableComponent))
 class GG_TANKS_API UTankTurret : public UStaticMeshComponent

@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GG_Tanks.h"
+#include "TankAimingComponent.h"
 #include "Tank.h"
 #include "TankPlayerControler.h"
 
@@ -8,16 +9,16 @@ void ATankPlayerControler::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto ControlledTank = GetControlledTank();
-	if (!ControlledTank)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayController not possesing a tank"));
+	auto AimingComponent = GetControlledTank()->FindComponentByClass<UTankAimingComponent>();
+	if (ensure(AimingComponent)) {
+		FoundAimingComponent(AimingComponent);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerController possessing: %s"), *(ControlledTank->GetName()));
+		UE_LOG(LogTemp, Warning, TEXT("Player Contr cant fiind aim conp BeginPlay"));
 	}
 }
+
 
 void ATankPlayerControler::Tick(float DeltaTime)
 {
@@ -32,7 +33,7 @@ ATank* ATankPlayerControler::GetControlledTank() const
 
 void ATankPlayerControler::AimTowardsCrosshair()
 {
-	if (!GetControlledTank()) { return; }
+	if (!ensure(GetControlledTank())) { return; }
 
 	FVector HitLocation; // Out parameter
 	if (GetSightRayHitLocation(HitLocation)) // Has "side-effect", is going to line trace

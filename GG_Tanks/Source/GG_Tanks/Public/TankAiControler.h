@@ -22,7 +22,8 @@ private:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	ATank* GetControlledTank() const;
+	// cat de aporoape poate AI sa se apropie de tank
+	float AcceptanceRadius = 300;
 
-	ATank* GetPlayerTank() const;
+
 };

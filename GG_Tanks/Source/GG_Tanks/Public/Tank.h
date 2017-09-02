@@ -19,16 +19,12 @@ class GG_TANKS_API ATank : public APawn
 public:
 	void AimAt(FVector HitLocation);
 
-	UFUNCTION(BlueprintCallable, Category = Setup)
-	void SetBarrelReference(UTankBarrel* BarrelToSet);
 
-	UFUNCTION(BlueprintCallable, Category = Setup)
-	void SetTurretReference(UTankTurret* TurretToSet);
-
-	UFUNCTION(BlueprintCallable, Category = Fiering)
+	UFUNCTION(BlueprintCallable, Category = "Fiering")
 		void Fire();
 
 protected:
+	UPROPERTY(BlueprintReadOnly)
 	UTankAimingComponent* TankAimingComponent = nullptr;
 
 private:
@@ -40,13 +36,18 @@ private:
 
 
 	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+	//virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
-	UPROPERTY(EditAnywhere, Category = Firing)
-		float LaunchSpeed = 50000; // TODO find sensible default
-
-	UPROPERTY(EditAnywhere, Category = Setup)
+	UPROPERTY(EditAnywhere, Category = "Setup")
 		TSubclassOf<AProjectile> ProjectileBlueprints;
 
-	UTankBarrel* Barrel = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Firing")
+		float LaunchSpeed = 50000; // TODO find sensible default
+
+	UPROPERTY(EditAnywhere, Category = "Setup")
+	float ReloadTimeInSecond = 3;
+
+	UTankBarrel* Barrel = nullptr; // TODO Remove
+
+	double LastFireTime = 0;
 };
