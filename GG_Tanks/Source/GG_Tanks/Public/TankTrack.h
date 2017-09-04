@@ -16,8 +16,25 @@ class GG_TANKS_API UTankTrack : public UStaticMeshComponent
 public:
 	UFUNCTION(BlueprintCallable,Category = "Input")
 	void SetThrottle(float Throttle);
-	
+
 	// max force per track
 	UPROPERTY(EditAnywhere, Category = "Setup")
-		float TrackMaxDrivingForce = 400000;
+	float TrackMaxDrivingForce = 400000;
+
+	
+	
+private:
+	UTankTrack();
+
+	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+
+	void ApplySidewaysForce();
+	
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+	
+	void DriveTrack();
+
+	float CurentThrorrle = 0;
 };

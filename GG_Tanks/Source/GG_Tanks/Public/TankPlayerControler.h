@@ -6,8 +6,8 @@
 #include "TankPlayerControler.generated.h"
 
 //Foward Declaration
-class ATank;
-class UTankTankAimingComponent;
+class UTankAimingComponent;
+
 /**
  * Responsible fro helping the player aim
  */
@@ -17,8 +17,6 @@ class GG_TANKS_API ATankPlayerControler : public APlayerController
 	GENERATED_BODY()
 
 protected:
-	UFUNCTION(BlueprintCallable, Category = "Setup")
-	ATank* GetControlledTank() const;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Setup")
 	void FoundAimingComponent(UTankAimingComponent* AimCompRef);
